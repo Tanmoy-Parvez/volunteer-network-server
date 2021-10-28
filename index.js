@@ -17,19 +17,34 @@ async function run() {
     try {
         await client.connect();
         const database = client.db("volunteerActivities");
-        const eventsCollection = database.collection("events")
+        const eventsCollection = database.collection("events");
+        const registerCollection = database.collection("register");
 
         // GET API to load all the events from database
         app.get("/events", async (req, res) => {
             const results = await eventsCollection.find({}).toArray();
             res.send(results);
         });
-
+        // load single event
         app.get("/events/:id", async (req, res) => {
             const id = req.params.id;
             const results = await eventsCollection.findOne({ _id: ObjectId(id) });
             res.send(results);
         })
+        // POST API
+        app.post("/event", async (req, res) => {
+            const event = req.body;
+            const results = await registerCollection.insertOne(event);
+            console.log(req.body);
+            res.send(results);
+        })
+        // GET API to load all the register events from database
+        app.get("/registerEvents/:email", async (req, res) => {
+            const email = req.params.email;
+            console.log(req.params.email);
+            const results = await registerCollection.find({ email: (email) }).toArray();
+            res.send(results);
+        });
     }
 
     finally {
